@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "journalflow"
+version = "0.1.0"
+description = "Incremental journal discovery, authorized PDF intake, and resumable visual Markdown conversion"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "JournalFlow contributors"}]
+dependencies = ["httpx>=0.28,<1", "pypdfium2>=5,<6", "filelock>=3.16,<4"]
+
+[project.optional-dependencies]
+vision = ["paddleocr[doc-parser]==3.7.0", "numpy>=1.26,<3"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "build>=1.2,<2", "numpy>=1.26,<3"]
+
+[project.scripts]
+journalflow = "journalflow.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jiang4wqy/journalflow"
+Issues = "https://github.com/jiang4wqy/journalflow/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+journalflow = ["presets/*.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
