@@ -1,5 +1,9 @@
 # JournalFlow
 
+Version 0.3 adds a local browser dashboard, project-scoped Codex setup, external-corpus deduplication baselines, reviewed regional-index increments, and gated weekly scheduling. This release provides GitHub source and a source ZIP, without a packaged installation-free Python runtime. Python 3.11/3.12 and network access for first-time dependency installation are required; regional retrieval models and the visual model service must be configured separately. Downloading or extracting the source starts nothing. Users may explicitly invoke the optional Windows/macOS launchers under `scripts/`.
+
+New configurations pause downloads and vision by default. A real ten-document download/conversion trial and regional acceptance are required before weekly jobs can be enabled. Historical holdout replays never satisfy that live gate. Public distributions contain code and synthetic examples, not journal PDFs, private indexes, credentials, or model weights. See [weekly updates](docs/weekly-updates.md) and [regional integration](docs/regional-updates.md).
+
 [中文](README.md) · [Vision setup](docs/vision.md) · [Scheduled operation](docs/automation.md)
 
 A Python CLI connecting incremental journal discovery, authorized PDF intake, visual Markdown conversion, difficult-page review, and page-level keyword search.
@@ -67,6 +71,14 @@ journalflow search 'optimization AND uncertainty'
 Outputs include `document.md`, an optional `document-refined.md`, page artifacts, and `status.json`. Original PDFs are preserved. Changing PDF contents or recognition policy retains previous artifacts. Search results identify the DOI, PDF hash, source page, and selected Markdown path.
 
 Quality checks are screening heuristics, **not OCR accuracy scores**. A higher-resolution pass does not guarantee correct formulas or numbers. Unresolved flags remain visible. Charts retain source images rather than generated numerical tables. Source version labels and successful PDF parsing do not certify article identity or completeness.
+
+## Search papers from Codex
+
+The optional MCP server exposes read-only search and page retrieval over stdio.
+Index text-based PDFs on CPU, or use the page index produced by visual conversion.
+See the [quickstart with a synthetic two-page example](docs/codex-mcp.md).
+
+Use the [research workflow and templates](docs/research-workflow.md) to record page-level evidence and compare studies. The templates are in Chinese.
 
 ## Automation
 

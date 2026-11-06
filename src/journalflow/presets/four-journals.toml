@@ -41,3 +41,12 @@ max_new_tokens = 8192
 refine = true
 refine_dpi = 450
 refine_max_pixels = 4014080
+
+[automation]
+# Opt in only after a real download/conversion trial and regional validation.
+download_enabled = false
+vision_enabled = false
+weekday = 0
+hour = 10
+minute = 0
+timezone = "Asia/Shanghai"

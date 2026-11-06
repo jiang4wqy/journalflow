@@ -60,7 +60,9 @@ class State:
             VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(doi) DO UPDATE SET
             journal=excluded.journal,title=excluded.title,authors=excluded.authors,
             metadata=excluded.metadata,metadata_hash=excluded.metadata_hash,
-            fetch_state='pending',last_error=NULL,retry_at=NULL,updated_at=excluded.updated_at
+            fetch_state=CASE WHEN papers.fetch_state IN ('downloaded','baseline_available')
+                THEN papers.fetch_state ELSE 'pending' END,
+            last_error=NULL,retry_at=NULL,updated_at=excluded.updated_at
             """, (item["doi"], item["journal"], item["title"], json.dumps(item["authors"]),
                   json.dumps(item, ensure_ascii=False), item["metadata_hash"], now(), now()))
         self.connection.commit()
@@ -136,13 +138,16 @@ class State:
                   error, review_pages, refined_pages, now()))
         self.connection.commit()
 
-    def conversion_queue(self, policy: str, limit: int):
+    def conversion_queue(self, policy: str, limit: int, *, unindexed_only=False):
+        unindexed = """
+            AND NOT EXISTS (SELECT 1 FROM page_search s WHERE s.doi=pdfs.doi AND s.pdf_sha=pdfs.sha256)
+        """ if unindexed_only else ""
         return [dict(row) for row in self.connection.execute("""
             SELECT pdfs.*,papers.title,papers.journal,papers.metadata FROM pdfs
             JOIN papers ON papers.doi=pdfs.doi
             LEFT JOIN conversions c ON c.pdf_id=pdfs.id AND c.policy=?
-            WHERE c.state IS NULL OR c.state!='completed' ORDER BY pdfs.id LIMIT ?
-            """, (policy, limit))]
+            WHERE (c.state IS NULL OR c.state!='completed')
+            """ + unindexed + " ORDER BY pdfs.id LIMIT ?", (policy, limit))]
 
     def index_pages(self, pdf: dict, pages: list[tuple[int, str, str]]):
         with self.connection:

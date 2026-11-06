@@ -17,6 +17,7 @@ logs/
 !.env.example
 journalflow.toml
 *.pdf
+!examples/demo.pdf
 *.sqlite*
 *.db
 *.safetensors

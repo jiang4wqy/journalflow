@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
 import shutil
+import tomllib
+from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -13,6 +16,28 @@ from .util import digest_file, normalize_doi, public_url, slug
 
 UNPAYWALL = "https://api.unpaywall.org/v2"
 VERSIONS = ("published", "accepted", "preprint", "unknown")
+
+
+def apply_fetch_scope(config: Config, state: State):
+    """Recent metadata updates can concern old articles; do not backfill blindly."""
+    raw = tomllib.loads(config.path.read_text(encoding="utf-8")) if config.path.is_file() else {}
+    since = raw.get("automation", {}).get("publication_since")
+    if not since:
+        return 0
+    from .discovery import in_window
+    start, end = date.fromisoformat(since), datetime.now(timezone.utc).date()
+    changes = []
+    for row in state.connection.execute("SELECT doi,metadata,fetch_state FROM papers WHERE fetch_state "
+                                        "IN ('pending','failed','waiting_access','outside_scope')").fetchall():
+        metadata = json.loads(row["metadata"])
+        keep = in_window(metadata.get("dates", {}), start, end)
+        if not keep and row["fetch_state"] != "outside_scope":
+            changes.append(('outside_scope', 'Publication dates outside the configured collection', row['doi']))
+        elif keep and row["fetch_state"] == "outside_scope":
+            changes.append(('pending', None, row['doi']))
+    with state.connection:
+        state.connection.executemany('UPDATE papers SET fetch_state=?,last_error=?,retry_at=NULL WHERE doi=?', changes)
+    return sum(status == 'outside_scope' for status, _, _ in changes)
 
 
 def install_pdf(config: Config, state: State, path: Path, doi: str,
@@ -41,10 +66,16 @@ def install_pdf(config: Config, state: State, path: Path, doi: str,
 
 
 def fetch(config: Config, state: State, http: Http, limit: int = 20, retry: bool = False):
-    report = dict(downloaded=0, waiting_access=0, failed=0, deferred=0)
+    report = dict(downloaded=0, waiting_access=0, failed=0, deferred=0,
+                  excluded_from_fetch_scope=apply_fetch_scope(config, state))
     email = os.environ.get(config.unpaywall_email_env)
+    from .baseline import baseline_dois
+    available = baseline_dois(state)
     for paper in state.pending_fetch(limit, retry):
         doi = paper["doi"]
+        if doi in available:
+            state.fetch_result(doi, "baseline_available")
+            continue
         temporary = config.data_dir / "incoming" / (slug(doi) + ".part")
         try:
             if not email:

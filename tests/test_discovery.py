@@ -30,13 +30,14 @@ def test_deduplicates_dois_and_ignores_index_noise(config, state, raw_record):
         http.close()
 
 
-def test_changed_metadata_queues_new_check(config, state, raw_record):
+def test_changed_metadata_updates_catalog_without_redownloading(config, state, raw_record):
     original = normalize(raw_record, config.journals[0])
     state.upsert(original)
     state.fetch_result(original["doi"], "downloaded")
     raw_record["title"] = ["Corrected research title"]
     assert state.upsert(normalize(raw_record, config.journals[0]))
-    assert state.paper(original["doi"])["fetch_state"] == "pending"
+    assert state.paper(original["doi"])["fetch_state"] == "downloaded"
+    assert state.paper(original["doi"])["title"] == "Corrected research title"
     assert state.summary()["papers"] == 1
 
 
