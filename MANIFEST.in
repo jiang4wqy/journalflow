@@ -1,5 +1,6 @@
 include README.md README.en.md LICENSE CONTRIBUTING.md SECURITY.md .env.example
 recursive-include docs *.md
+recursive-include docs/assets *.png *.jpg *.webp *.svg
 recursive-include examples *.pdf *.toml
 recursive-include scripts *.sh *.ps1 *.py *.cmd *.command
 recursive-include tests *.py

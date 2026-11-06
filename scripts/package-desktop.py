@@ -230,6 +230,7 @@ def prepare(args, target):
 def source_files():
     files = {}
     for folder, suffixes in (("src", {".py", ".toml"}), ("docs", {".md"}),
+                             ("docs/assets", {".png", ".jpg", ".webp", ".svg"}),
                              ("examples", {".toml", ".md"}),
                              ("scripts", {".py", ".cmd", ".command", ".ps1", ".sh"})):
         for path in (PROJECT / folder).rglob("*"):

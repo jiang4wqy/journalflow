@@ -1,108 +1,167 @@
-# JournalFlow
+<p align="center">
+  <img src="docs/assets/journalflow-hero.png" alt="JournalFlow concept illustration: academic papers becoming a searchable evidence library" width="100%">
+</p>
 
-Version 0.3 adds a local browser dashboard, project-scoped Codex setup, external-corpus deduplication baselines, reviewed regional-index increments, and gated weekly scheduling. This release provides GitHub source and a source ZIP, without a packaged installation-free Python runtime. Python 3.11/3.12 and network access for first-time dependency installation are required; regional retrieval models and the visual model service must be configured separately. Downloading or extracting the source starts nothing. Users may explicitly invoke the optional Windows/macOS launchers under `scripts/`.
+<h1 align="center">JournalFlow</h1>
 
-New configurations pause downloads and vision by default. A real ten-document download/conversion trial and regional acceptance are required before weekly jobs can be enabled. Historical holdout replays never satisfy that live gate. Public distributions contain code and synthetic examples, not journal PDFs, private indexes, credentials, or model weights. See [weekly updates](docs/weekly-updates.md) and [regional integration](docs/regional-updates.md).
+<p align="center"><strong>Turn journal papers into a searchable, traceable research library.</strong></p>
 
-[中文](README.md) · [Vision setup](docs/vision.md) · [Scheduled operation](docs/automation.md)
+<p align="center">
+  <a href="https://github.com/jiang4wqy/journalflow/actions/workflows/ci.yml"><img src="https://github.com/jiang4wqy/journalflow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+  <img src="https://img.shields.io/badge/Python-3.11%20%7C%203.12-0f766e" alt="Python 3.11 and 3.12">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-334155" alt="Apache 2.0 license"></a>
+</p>
 
-A Python CLI connecting incremental journal discovery, authorized PDF intake, visual Markdown conversion, difficult-page review, and page-level keyword search.
+<p align="center">
+  <a href="README.md">中文</a> · <strong>English</strong> · <a href="#quick-start">Quick start</a> · <a href="#how-it-works">Workflow</a> · <a href="#documentation">Documentation</a>
+</p>
 
-## Features
+<p align="center"><sub>Cover: AI-generated concept illustration, not a product screenshot.</sub></p>
 
-- Configurable journal/ISSN lists; the bundled preset contains IJOC, MIS Quarterly, Information Systems Research, and Management Science.
-- Crossref discovery with publication-date backfills, overlapping incremental windows, DOI deduplication, and durable checkpoints.
-- OA PDF locations from Unpaywall, or explicit import of PDFs obtained through the user's authorized access.
-- Real PDF validation, page counts, hashes, and separate content versions.
-- The full PaddleOCR-VL 1.6 layout-and-recognition pipeline through a compatible vLLM service.
-- 300 DPI primary recognition and selective 450 DPI rereading, retaining both outputs and unresolved review flags.
-- Page-level Markdown, JSON, image assets, and provenance; SQLite FTS5 indexes the selected page version.
-- Single cycles, repeated cycles, persistent queues, source cooldowns, and a single-writer lock.
+JournalFlow connects paper discovery, authorized PDF intake, visual Markdown conversion, reviewed RAG updates, and read-only Codex tools. Keep the source PDF, selected transcription, DOI, and physical page number connected as your library grows.
 
-## Core installation
+> **Current release: source code and examples.** Bring Python 3.11/3.12 and your own paper data. Standalone runtimes, model weights, private indexes, and credentials are not bundled. Downloading or extracting the repository starts no program or scheduled job.
 
-Use Python 3.11 or 3.12:
+## What you can do
+
+| Task | What JournalFlow provides |
+| --- | --- |
+| **Keep a journal catalog current** | Crossref discovery by ISSN, overlapping update windows, DOI deduplication, and persistent checkpoints. |
+| **Add papers without losing provenance** | Unpaywall OA locations or authorized local imports; PDF validation, hashes, page counts, and separate content versions. |
+| **Convert and review PDFs** | PaddleOCR-VL 1.6, 300 DPI recognition, selective 450 DPI rereading, page-level Markdown, and visible unresolved flags. |
+| **Search from Codex** | Read-only `search_papers` and `get_page` tools return evidence with DOI, source version, physical PDF page, and local PDF link. |
+| **Extend an existing regional RAG library** | External-source baselines, reviewed increments, preserved old vector payloads, validation, and atomic index publication. |
+| **Prepare weekly updates** | Optional local dashboard, project-scoped Codex setup, and gated Windows/macOS weekly tasks. |
+
+The four-journal preset covers **INFORMS Journal on Computing**, **MIS Quarterly**, **Information Systems Research**, and **Management Science**. Replace the journal keys and ISSNs in TOML to use another collection.
+
+## How it works
+
+```mermaid
+flowchart TB
+  subgraph intake["01 · Discover and collect"]
+    direction LR
+    A[Crossref discovery] --> B[DOI / source-hash deduplication] --> C[OA PDF / authorized import]
+  end
+  subgraph processing["02 · Convert with provenance"]
+    direction LR
+    D[PDF checks and rendering] --> E[300 DPI recognition] --> F[Selective 450 DPI rereading]
+    F --> G[Markdown / pages / review flags]
+  end
+  subgraph retrieval["03 · Retrieve and research"]
+    direction LR
+    H[Keyword page index] --> J[Read-only MCP]
+    I[Compatible regional vector increment] --> J
+    J --> K[Codex search / citation / comparison]
+  end
+  intake --> processing
+  processing --> retrieval
+  C -. Text-layer PDF shortcut .-> H
+  L[Ten-paper live acceptance + explicit install] -. Weekly trigger .-> A
+  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a
+  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28
+  class A,B,C source
+  class G,H,I,J,K evidence
+```
+
+For PDFs with a usable text layer, the CPU-only `index-text` path supports a first search without a visual model. The standard page index uses SQLite FTS5; an existing regional library can additionally use its configured, fixed embedding model. The source PDFs remain unchanged.
+
+## Quick start
+
+### 1. Install the source
 
 ```bash
 git clone https://github.com/jiang4wqy/journalflow.git
 cd journalflow
 python -m venv .venv
-source .venv/bin/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install -e .
+```
+
+Activate the environment for your operating system:
+
+| System | Activation command |
+| --- | --- |
+| Windows PowerShell | `.venv\Scripts\Activate.ps1` |
+| macOS / Linux | `source .venv/bin/activate` |
+
+```bash
+python -m pip install -e '.[mcp]'
 journalflow init
-journalflow discover
-journalflow status
 ```
 
-Edit the generated `journalflow.toml`. Relative paths resolve against that file. Core installation does not install Paddle, CUDA, or model weights.
+This creates `journalflow.toml`; relative data paths resolve against that file. Installing dependencies needs network access. This setup does not install Paddle, CUDA, or model weights.
 
-Set your own email for OA discovery, then fetch a bounded batch:
+### 2. Search the included synthetic example
 
 ```bash
-export JOURNALFLOW_CONTACT_EMAIL="your-email@example.org"
-export UNPAYWALL_EMAIL="your-email@example.org"
-journalflow fetch --limit 20
+journalflow import-pdf ./examples/demo.pdf --doi 10.99999/journalflow-demo --journal IJOC --year 2025 --title "Synthetic routing demo"
+journalflow index-text
+journalflow search 'route disruption'
 ```
 
-No OA PDF or missing access remains a visible `waiting_access` state. Institutional login and security challenges require the user. There is no automated institutional sign-in or paywall bypass. After resolving access/configuration:
+The included two-page PDF, DOI, and journal assignment are **synthetic demonstration data**. The query should find the second physical PDF page. This path needs no GPU, contact email, or journal subscription.
+
+### 3. Connect the project to Codex
 
 ```bash
-journalflow fetch --retry-access --limit 20
+journalflow connect-codex
 ```
 
-Import an authorized local PDF:
+This writes a project `.codex/config.toml` beside your JournalFlow configuration and preserves conflicting existing settings. Open that directory in Codex, trust the project, then ask:
+
+> Use JournalFlow to find route disruption in 2025. Open the matching page and give me the supporting passage, DOI, and physical PDF page.
+
+Tool excerpts enter the Codex conversation. Use your own data according to its sharing permissions. See [Codex setup](docs/codex-mcp.md) for manual registration and import options.
+
+## Add your own collection
+
+| Next step | Entry point | Requirements |
+| --- | --- | --- |
+| Discover catalog records | `journalflow discover`, then `journalflow status` | Internet; configured journal ISSNs. This does not fetch full text. |
+| Import a PDF you already hold | `journalflow import-pdf ./paper.pdf --doi …` | Authorized source; add `--journal` and `--title` for an uncataloged DOI. |
+| Find OA PDFs | `journalflow fetch --limit 10` | Your own Unpaywall contact email; export the [email environment variables](.env.example). |
+| Run visual conversion | `journalflow convert --limit 10` | Separately configured [visual model client and service](docs/vision.md). |
+| Attach an existing regional index | `baseline` → `pipeline --limit 10` | [Regional schema, source roots, model, and review receipts](docs/regional-updates.md). |
+| Inspect the optional dashboard | Windows/macOS launchers under `scripts/` | Explicit launch, Python, and first-time dependencies; [instructions](docs/weekly-updates.md). |
+
+Explicit `fetch` and `convert` commands request those stages directly. The guarded `pipeline` and dashboard batch respect `download_enabled=false` and `vision_enabled=false`, the new-configuration defaults.
+
+## Weekly updates: opt-in after acceptance
+
+The default weekly slot is **Monday, 10:00, Asia/Shanghai**. Configuring that time does not install a task.
+
+Before installation, the pipeline must verify the **same batch of at least ten distinct new papers**: real HTTP(S) downloads, completed visual conversions, matching DOI/source hashes, and answer-eligible evidence in a freshly validated published regional index. Historical holdout replay and two unrelated “ten completed” counters do not pass the gate. Issuing the private gate receipt still does not install a task.
+
+**The real ten-new-paper acceptance trial has not been completed for this release.** Downloading, vision, and scheduled jobs remain paused until an operator configures and validates them. Windows uses Task Scheduler; macOS uses launchd. See [weekly setup and removal](docs/weekly-updates.md). The older `run/watch` page-library cycle is separate from the guarded regional update path.
+
+## Evidence quality
+
+- Preserve DOI, physical PDF page, source version, and supporting text when writing an answer. The [evidence-table and cross-paper templates](docs/research-workflow.md) help record those links.
+- Review flags are screening results, not measured OCR accuracy. A 450 DPI pass does not certify numbers, formulas, or tables; unresolved evidence stays isolated from default regional answers.
+- Successful parsing and a source-version label do not certify article identity or completeness. Missing access remains visible as `waiting_access`; institutional sign-in is handled by the operator.
+
+## Documentation
+
+Detailed guides are currently in Chinese unless noted otherwise.
+
+| Guide | Use it for |
+| --- | --- |
+| [Codex MCP setup](docs/codex-mcp.md) | Search/page tools, synthetic example, manual registration. |
+| [Regional RAG integration](docs/regional-updates.md) | Baselines, embedding identity, reviewed manifests, immutable generations. |
+| [Weekly updates and dashboard](docs/weekly-updates.md) | Paused defaults, live acceptance, local launchers, install/uninstall. |
+| [Visual model deployment](docs/vision.md) | PaddleOCR-VL client, model service, and high-resolution rereading. |
+| [Research workflow and templates](docs/research-workflow.md) | Page-level evidence records and cross-paper comparison. |
+| [Basic operation and recovery](docs/automation.md) | Page-library `run/watch`, retries, and backup boundaries. |
+| [Verification record](docs/verification.md) | Test scope, synthetic integration, and limitations; written in English. |
+
+## Contributing and license
 
 ```bash
-journalflow import-pdf ./paper.pdf --doi 10.1234/example --version published
-```
-
-For a DOI not yet in the catalog, also pass a configured `--journal` key and `--title`.
-
-## Visual conversion
-
-Configure the optional client and model service as described in [docs/vision.md](docs/vision.md). The documented service uses vLLM 0.21.0 and BF16; the client uses PaddleOCR 3.7.0 with an appropriate PaddlePaddle 3.2.1 installation. A CPU layout client can connect to a separate GPU model service.
-
-```bash
-journalflow doctor --vision
-journalflow convert --limit 20
-journalflow search 'optimization AND uncertainty'
-```
-
-Outputs include `document.md`, an optional `document-refined.md`, page artifacts, and `status.json`. Original PDFs are preserved. Changing PDF contents or recognition policy retains previous artifacts. Search results identify the DOI, PDF hash, source page, and selected Markdown path.
-
-Quality checks are screening heuristics, **not OCR accuracy scores**. A higher-resolution pass does not guarantee correct formulas or numbers. Unresolved flags remain visible. Charts retain source images rather than generated numerical tables. Source version labels and successful PDF parsing do not certify article identity or completeness.
-
-## Search papers from Codex
-
-The optional MCP server exposes read-only search and page retrieval over stdio.
-Index text-based PDFs on CPU, or use the page index produced by visual conversion.
-See the [quickstart with a synthetic two-page example](docs/codex-mcp.md).
-
-Use the [research workflow and templates](docs/research-workflow.md) to record page-level evidence and compare studies. The templates are in Chinese.
-
-## Automation
-
-```bash
-journalflow run --limit 20
-journalflow watch --interval-hours 24 --limit 20
-journalflow run --without-vision --limit 20
-```
-
-`watch` waits after each completed cycle. Run it under your own process manager for unattended operation. It is not a hosted service and does not start a cloud GPU, keep a computer awake, or create a Codex automation. HTTP authorization blocks persist until explicit retry; `Retry-After` is respected across restarts.
-
-## Development
-
-```bash
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,mcp]'
 ruff check .
 pytest -q
 python -m build
 ```
 
-The offline suite uses synthetic documents and test-only recognition doubles. The production CLI contains no fake recognizer. A separate live test checked the packaged code against a compatible PaddleOCR-VL service, including two pages, 450 DPI rereading, and search. This is not an accuracy benchmark; see the [verification record](docs/verification.md). CI covers the core package on Windows and Linux.
+[GitHub Actions](https://github.com/jiang4wqy/journalflow/actions) checks Python 3.11/3.12 on Windows, macOS, and Linux using offline tests and synthetic fixtures. It does not run journal downloads or GPU models. See [Contributing](CONTRIBUTING.md) and [Security](SECURITY.md).
 
-The initial lookback is not a permanent publication-date boundary: incremental index updates may also discover older records updated recently.
-
-The repository contains source code and examples only. PDFs, model weights, browser sessions, private databases, environment values, and account credentials are excluded. Use article content according to its source license and your access agreement.
-
-Source code is licensed under [Apache-2.0](LICENSE). Dependencies, models, and article content retain their own licenses. See the [Chinese README](README.md) for the complete command walkthrough and upstream references.
+Source code is licensed under [Apache-2.0](LICENSE). Dependencies, models, and article content retain their own licenses. Public packages contain code and examples, not private PDFs, Markdown corpora, indexes, browser sessions, or account credentials.
