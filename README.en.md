@@ -39,29 +39,15 @@ The four-journal preset covers **INFORMS Journal on Computing**, **MIS Quarterly
 
 ```mermaid
 flowchart TB
-  subgraph intake["01 · Discover and collect"]
-    direction LR
-    A[Crossref discovery] --> B[DOI / source-hash deduplication] --> C[OA PDF / authorized import]
-  end
-  subgraph processing["02 · Convert with provenance"]
-    direction LR
-    D[PDF checks and rendering] --> E[300 DPI recognition] --> F[Selective 450 DPI rereading]
-    F --> G[Markdown / pages / review flags]
-  end
-  subgraph retrieval["03 · Retrieve and research"]
-    direction LR
-    H[Keyword page index] --> J[Read-only MCP]
-    I[Compatible regional vector increment] --> J
-    J --> K[Codex search / citation / comparison]
-  end
-  intake --> processing
-  processing --> retrieval
-  C -. Text-layer PDF shortcut .-> H
-  L[Ten-paper live acceptance + explicit install] -. Weekly trigger .-> A
-  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a
-  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28
-  class A,B,C source
-  class G,H,I,J,K evidence
+  A["01 · Discover and collect<br/>Catalog → deduplicate → OA / authorized PDF"]
+  B["02 · Convert with provenance<br/>300 DPI → selective 450 DPI rereading<br/>Markdown / physical pages / review flags"]
+  C["03 · Retrieve and research<br/>Keyword index / compatible regional increment<br/>Read-only MCP → Codex search and citations"]
+  A --> B --> C
+  A -. Text layer .-> C
+  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a,font-size:18px
+  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28,font-size:18px
+  class A,C source
+  class B evidence
 ```
 
 For PDFs with a usable text layer, the CPU-only `index-text` path supports a first search without a visual model. The standard page index uses SQLite FTS5; an existing regional library can additionally use its configured, fixed embedding model. The source PDFs remain unchanged.

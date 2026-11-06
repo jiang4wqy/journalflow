@@ -19,4 +19,3 @@ Composition: calm uncluttered left third reserved for the project title, desk an
 Text verbatim: "JournalFlow" in a large crisp dark charcoal modern sans-serif at the upper left, and below it smaller "From papers to grounded answers." No other words.
 Constraints: this is a conceptual project cover, never an application screenshot. No people, no vendor logos, no university marks, no real article title or DOI, no fake performance numbers, no purple gradient, no neon holograms, no watermark. Make it polished, quiet and welcoming. Opaque ivory background.
 ```
-

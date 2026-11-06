@@ -41,29 +41,15 @@ JournalFlow 连接期刊查新、全文获取、PDF 识别与论文检索。你�
 
 ```mermaid
 flowchart TB
-  subgraph intake["01 · 获取与去重"]
-    direction LR
-    A[Crossref 查新] --> B[DOI / 来源哈希去重] --> C[OA 全文 / 授权 PDF 导入]
-  end
-  subgraph processing["02 · 转换与保留来源"]
-    direction LR
-    D[PDF 检查与渲染] --> E[300 DPI 视觉识别] --> F[疑难页 450 DPI 二次识别]
-    F --> G[Markdown · 页码 · 复核标记]
-  end
-  subgraph retrieval["03 · 检索与研究"]
-    direction LR
-    H[基础关键词页库] --> J[只读 MCP]
-    I[兼容区域库的向量增量] --> J
-    J --> K[Codex 检索 / 引用 / 比较]
-  end
-  intake --> processing
-  processing --> retrieval
-  C -. 文字层 PDF 可直接索引 .-> H
-  L[真实十篇验收 + 显式安装] -. 每周触发 .-> A
-  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a
-  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28
-  class A,B,C source
-  class G,H,I,J,K evidence
+  A["01 · 获取与去重<br/>期刊查新 → 去重 → OA / 授权 PDF"]
+  B["02 · 转换与保留来源<br/>300 DPI 识别 → 疑难页 450 DPI<br/>Markdown · 物理页码 · 复核状态"]
+  C["03 · 检索与研究<br/>关键词页库 / 兼容区域库增量<br/>只读 MCP → Codex 检索与引用"]
+  A --> B --> C
+  A -. 文字层直入 .-> C
+  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a,font-size:18px
+  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28,font-size:18px
+  class A,C source
+  class B evidence
 ```
 
 **两种检索路径：** 基础页库使用 SQLite FTS5，带文字层的 PDF 可直接在 CPU 上建立关键词索引。区域向量增量需要已有兼容索引、固定嵌入模型及收据；`baseline` 登记已有来源，不会从零创建整套向量库。上图的视觉服务与周更均需另行配置。
