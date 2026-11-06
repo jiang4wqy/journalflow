@@ -39,18 +39,9 @@ JournalFlow 连接期刊查新、全文获取、PDF 识别与论文检索。你�
 
 ## 三段流程
 
-```mermaid
-flowchart TB
-  A["01 · 获取与去重<br/>期刊查新 → 去重 → OA / 授权 PDF"]
-  B["02 · 转换与保留来源<br/>300 DPI 识别 → 疑难页 450 DPI<br/>Markdown · 物理页码 · 复核状态"]
-  C["03 · 检索与研究<br/>关键词页库 / 兼容区域库增量<br/>只读 MCP → Codex 检索与引用"]
-  A --> B --> C
-  A -. 文字层直入 .-> C
-  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a,font-size:18px
-  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28,font-size:18px
-  class A,C source
-  class B evidence
-```
+<p align="center">
+  <img src="docs/assets/workflow-zh.svg" alt="三段流程：获取去重、转换保留来源、通过 MCP 检索；带文字层的 PDF 可直接索引" width="500" />
+</p>
 
 **两种检索路径：** 基础页库使用 SQLite FTS5，带文字层的 PDF 可直接在 CPU 上建立关键词索引。区域向量增量需要已有兼容索引、固定嵌入模型及收据；`baseline` 登记已有来源，不会从零创建整套向量库。上图的视觉服务与周更均需另行配置。
 

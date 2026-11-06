@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="592" viewBox="0 0 500 592" role="img" aria-labelledby="title desc">
+  <title id="title">JournalFlow 三段工作流程</title>
+  <desc id="desc">获取与去重、视觉转换与来源保留、通过只读 MCP 检索。带文字层的 PDF 可以跳过视觉识别。</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#66877e"/></marker></defs>
+  <rect width="500" height="592" rx="20" fill="#fcfcfa"/>
+  <g font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <g>
+    <rect x="82" y="20" width="390" height="132" rx="16" fill="#eef8f5" stroke="#83b5aa" stroke-width="1.5"/>
+    <rect x="106" y="40" width="35" height="28" rx="8" fill="#d2e9e1"/>
+    <text x="123.5" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#365951">01</text>
+    <text x="153" y="61" font-size="20" font-weight="700" fill="#173f38">获取与去重</text>
+    <text x="277" y="100" text-anchor="middle" font-size="16" fill="#334a45">期刊查新 → DOI / 来源哈希去重</text>
+    <text x="277" y="126" text-anchor="middle" font-size="16" fill="#334a45">OA 全文 / 授权 PDF 入库</text>
+  </g>
+  <g>
+    <rect x="82" y="218" width="390" height="132" rx="16" fill="#faf5eb" stroke="#c4ad87" stroke-width="1.5"/>
+    <rect x="106" y="238" width="35" height="28" rx="8" fill="#eadfc8"/>
+    <text x="123.5" y="258" text-anchor="middle" font-size="15" font-weight="700" fill="#365951">02</text>
+    <text x="153" y="259" font-size="20" font-weight="700" fill="#173f38">转换与保留来源</text>
+    <text x="277" y="298" text-anchor="middle" font-size="16" fill="#334a45">300 DPI 识别 → 疑难页 450 DPI</text>
+    <text x="277" y="324" text-anchor="middle" font-size="16" fill="#334a45">Markdown · PDF 物理页码 · 复核状态</text>
+  </g>
+  <g>
+    <rect x="82" y="436" width="390" height="132" rx="16" fill="#eef8f5" stroke="#83b5aa" stroke-width="1.5"/>
+    <rect x="106" y="456" width="35" height="28" rx="8" fill="#d2e9e1"/>
+    <text x="123.5" y="476" text-anchor="middle" font-size="15" font-weight="700" fill="#365951">03</text>
+    <text x="153" y="477" font-size="20" font-weight="700" fill="#173f38">检索与研究</text>
+    <text x="277" y="516" text-anchor="middle" font-size="16" fill="#334a45">关键词页库 / 兼容区域库向量增量</text>
+    <text x="277" y="542" text-anchor="middle" font-size="16" fill="#334a45">只读 MCP → Codex 检索与引用</text>
+  </g>
+    <path d="M277 152 V202" fill="none" stroke="#66877e" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M277 350 V420" fill="none" stroke="#66877e" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M82 86 H34 V502 H72" fill="none" stroke="#8b9e98" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
+    <rect x="3" y="264" width="63" height="76" rx="10" fill="#fcfcfa" stroke="#d6dfda"/>
+    <text x="34.5" y="286" text-anchor="middle" font-size="12" fill="#516a62">文字层</text>
+    <text x="34.5" y="306" text-anchor="middle" font-size="12" fill="#516a62">可直接</text>
+    <text x="34.5" y="326" text-anchor="middle" font-size="12" fill="#516a62">索引</text>
+  </g>
+</svg>

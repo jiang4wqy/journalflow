@@ -8,6 +8,8 @@
 - The paper layouts, charts, index cards, and network are illustrative. This is not an application screenshot, real article content, or evidence of measured performance.
 - Generated for this project; no reference photograph, private PDF, model output, credentials, or journal material was supplied.
 
+`workflow-zh.svg` and `workflow-en.svg` are editable vector diagrams authored for the documentation. They describe the workflow; they are not screenshots or AI-generated paper evidence.
+
 ## Final generation prompt
 
 ```text

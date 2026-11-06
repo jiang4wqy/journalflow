@@ -37,18 +37,9 @@ The four-journal preset covers **INFORMS Journal on Computing**, **MIS Quarterly
 
 ## How it works
 
-```mermaid
-flowchart TB
-  A["01 · Discover and collect<br/>Catalog → deduplicate → OA / authorized PDF"]
-  B["02 · Convert with provenance<br/>300 DPI → selective 450 DPI rereading<br/>Markdown / physical pages / review flags"]
-  C["03 · Retrieve and research<br/>Keyword index / compatible regional increment<br/>Read-only MCP → Codex search and citations"]
-  A --> B --> C
-  A -. Text layer .-> C
-  classDef source fill:#eef8f5,stroke:#0f766e,color:#134e4a,font-size:18px
-  classDef evidence fill:#f8f5ee,stroke:#a78b62,color:#493c28,font-size:18px
-  class A,C source
-  class B evidence
-```
+<p align="center">
+  <img src="docs/assets/workflow-en.svg" alt="Three-stage workflow: collect, convert with provenance, and retrieve through MCP; text-layer PDFs can bypass visual recognition" width="500">
+</p>
 
 For PDFs with a usable text layer, the CPU-only `index-text` path supports a first search without a visual model. The standard page index uses SQLite FTS5; an existing regional library can additionally use its configured, fixed embedding model. The source PDFs remain unchanged.
 
